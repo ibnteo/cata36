@@ -4,7 +4,7 @@
  * Date: 2019-08-09
  * Author: Vladimir Romanovich <ibnteo@gmail.com>
  * License: MIT
- * https://github.com/ibnteo/catboarda36
+ * https://github.com/ibnteo/cata36
  */
 
 #include "Descriptors.h"
