@@ -1,7 +1,7 @@
 /*
  * Project: Chord keyboard CatBoard-A36
- * Version: 0.2 (Alpha)
- * Date: 2019-08-12
+ * Version: 0.4 (Beta)
+ * Date: 2019-08-13
  * Author: Vladimir Romanovich <ibnteo@gmail.com>
  * License: MIT
  * https://github.com/ibnteo/cata36
@@ -154,6 +154,25 @@ void Get_Mods(uint8_t chord) {
   }
 }
 
+bool IsVowels(uint8_t keyCode) {
+  bool v = false;
+  if (Layer_Current == LAYER2) {
+    if (keyCode == HID_KEYBOARD_SC_U || keyCode == HID_KEYBOARD_SC_E ||
+        keyCode == HID_KEYBOARD_SC_Y || keyCode == HID_KEYBOARD_SC_A ||
+        keyCode == HID_KEYBOARD_SC_I || keyCode == HID_KEYBOARD_SC_O)
+      v = true;
+  } else if (Layer_Current == LAYER1) {
+    if (keyCode == HID_KEYBOARD_RU_A || keyCode == HID_KEYBOARD_RU_E ||
+        keyCode == HID_KEYBOARD_RU_I || keyCode == HID_KEYBOARD_RU_O ||
+        keyCode == HID_KEYBOARD_RU_U || keyCode == HID_KEYBOARD_RU_SOFTSIGN ||
+        keyCode == HID_KEYBOARD_RU_YI || keyCode == HID_KEYBOARD_RU_YE ||
+        keyCode == HID_KEYBOARD_RU_YU || keyCode == HID_KEYBOARD_RU_YA ||
+        keyCode == HID_KEYBOARD_RU_YO)
+      v = true;
+  }
+  return v;
+}
+
 /** Buffer to hold the previously generated Keyboard HID report, for
  * comparison purposes inside the HID class driver. */
 static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
@@ -288,17 +307,8 @@ bool CALLBACK_HID_Device_CreateHIDReport(
                       Chords[4] < chords[4] || Chords[5] < chords[5] ||
                       Chords[6] < chords[6]);
 
-    // LED_Switch(Chords[0] || Chords[1] || Chords[2] || Chords[3] ||
-    // Chords[4]
-    // || Chords[5] || Chords[6]); return;
-
-    LED_Switch(Q_Mods);
-
-    if (isPress) {
-      Chord_Growing = true;
-      Get_Mods(Chords[0]);
-    } else if (isRelease) {
-      Get_Mods(Chords[0]);
+    if (isRelease) {
+      Get_Mods(chords[0]);
       if (Chord_Growing) {
         uint8_t multiplier = 0;
 
@@ -327,8 +337,9 @@ bool CALLBACK_HID_Device_CreateHIDReport(
           Settings = true;
           LED_Toggle();
         } else {
-          // Mods
           uint8_t keyCode = 0;
+          bool isSpace = false;
+          // Mods
           bool mods_dbl[6] = {false, false, false, false, false, false};
           for (int8_t i = 0; i < 12; i++) {
             keyCode = 0;
@@ -354,6 +365,8 @@ bool CALLBACK_HID_Device_CreateHIDReport(
                   layer = LAYER_FN;
                 } else if (keyCode == HID_KEYBOARD_LAYER_FN2) {
                   layer = LAYER_FN2;
+                } else if (keyCode == HID_KEYBOARD_SC_SPACE) {
+                  isSpace = true;
                 } else {
                   Macros_Buffer[Macros_Index++] = keyCode;
                   Macros_Buffer[Macros_Index++] = Q_Mods;
@@ -362,49 +375,59 @@ bool CALLBACK_HID_Device_CreateHIDReport(
             }
           }
           // Symbols
-          for (int8_t j = 0; j < 6; j++) {
-            bool chords_dbl[5] = {false, false, false, false, false};
-            for (int8_t i = 0; i < 9; i++) {
-              keyCode = 0;
-              if (((i < 4) && ((chords[j + 1] & (0x3 << i)) == (0x3 << i))) ||
-                  ((i >= 4) && (chords[j + 1] & (0x1 << (i - 4))))) {
-                keyCode = pgm_read_byte(&Layers[layer][j][i]);
-              }
-              if (keyCode) {
-                if (i < 4) {
-                  chords_dbl[i] = true;
-                  chords_dbl[i + 1] = true;
+          for (int8_t v = 0; v <= 1; v++) {
+            for (int8_t j = 0; j < 6; j++) {
+              bool chords_dbl[5] = {false, false, false, false, false};
+              for (int8_t i = 0; i < 9; i++) {
+                keyCode = 0;
+                if (((i < 4) && ((chords[j + 1] & (0x3 << i)) == (0x3 << i))) ||
+                    ((i >= 4) && (chords[j + 1] & (0x1 << (i - 4))))) {
+                  keyCode = pgm_read_byte(&Layers[layer][j][i]);
                 }
-                if ((i < 4) || ((i >= 4) && !chords_dbl[i - 4])) {
-                  if (keyCode == HID_KEYBOARD_LAYER_1) {
-                    if (Layer_Current != LAYER1) {
-                      Layout_Switch();
-                      Layer_Current = LAYER1;
-                      LED_On();
+                if (keyCode) {
+                  if (i < 4) {
+                    chords_dbl[i] = true;
+                    chords_dbl[i + 1] = true;
+                  }
+                  if ((i < 4) || ((i >= 4) && !chords_dbl[i - 4])) {
+                    if (keyCode == HID_KEYBOARD_LAYER_1) {
+                      if (Layer_Current != LAYER1) {
+                        Layout_Switch();
+                        Layer_Current = LAYER1;
+                        LED_On();
+                      }
+                    } else if (keyCode == HID_KEYBOARD_LAYER_2) {
+                      if (Layer_Current != LAYER2) {
+                        Layout_Switch();
+                        Layer_Current = LAYER2;
+                        LED_Off();
+                      }
+                    } else if (keyCode == HID_KEYBOARD_LAYER_MOU) {
+                    } else if (keyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION &&
+                               keyCode <=
+                                   HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS &&
+                               (chords[4] || chords[5] ||
+                                chords[6])) { // Multiplier
+                      multiplier +=
+                          (keyCode - HID_KEYBOARD_SC_1_AND_EXCLAMATION) + 1;
+                    } else if ((!v && !IsVowels(keyCode)) ||
+                               (v && IsVowels(keyCode))) {
+                      Macros_Buffer[Macros_Index] = keyCode;
+                      Macros_Index++;
+                      Macros_Buffer[Macros_Index] =
+                          Macros_Index == 1 ? Q_Mods : 0;
+                      Macros_Index++;
                     }
-                  } else if (keyCode == HID_KEYBOARD_LAYER_2) {
-                    if (Layer_Current != LAYER2) {
-                      Layout_Switch();
-                      Layer_Current = LAYER2;
-                      LED_Off();
-                    }
-                  } else if (keyCode == HID_KEYBOARD_LAYER_MOU) {
-                  } else if (keyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION &&
-                             keyCode <=
-                                 HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS &&
-                             (chords[4] || chords[5] || chords[6] ||
-                              (chords[1] & 0x11) || (chords[2] & 0x11) ||
-                              (chords[3] & 0x11))) { // Multiplier
-                    multiplier +=
-                        (keyCode - HID_KEYBOARD_SC_1_AND_EXCLAMATION) + 1;
-                  } else {
-                    Macros_Buffer[Macros_Index++] = keyCode;
-                    Macros_Buffer[Macros_Index++] = Q_Mods;
-                    // Macros_Index == 1 ? Q_Mods : 0;
                   }
                 }
               }
             }
+          }
+          if (isSpace) {
+            Macros_Buffer[Macros_Index] = HID_KEYBOARD_SC_SPACE;
+            Macros_Index++;
+            Macros_Buffer[Macros_Index] = Macros_Index == 1 ? Q_Mods : 0;
+            Macros_Index++;
           }
         }
 
@@ -433,6 +456,10 @@ bool CALLBACK_HID_Device_CreateHIDReport(
         //}
       }
     }
+    if (isPress) {
+      Chord_Growing = true;
+    }
+    Get_Mods(chords[0]);
   }
   /* Determine which interface must have its report generated */
   if (HIDInterfaceInfo == &Keyboard_HID_Interface) {
