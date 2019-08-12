@@ -40,88 +40,81 @@ void LED2_Toggle() {
 void LED2_Switch(bool on) {
 }
 
+// D5 <=> B0
+
 uint8_t Scan_Tick = 0;
-uint16_t Chords_Scan[2];
+uint16_t Chords_Scan[7];
 void Keyboard_Scan() {
 	if (Scan_Tick == 0) {
 		Chords_Scan[0] = 0;
 		Chords_Scan[1] = 0;
+		Chords_Scan[2] = 0;
+		Chords_Scan[3] = 0;
+		Chords_Scan[4] = 0;
+		Chords_Scan[5] = 0;
+		Chords_Scan[6] = 0;
 		PORTD &= ~(1<<2); // D2
 	} else if (Scan_Tick == 1) {
-		if (! (PINC & 1<<2)) Chords_Scan[0] |= 1<<0;
-		if (! (PINB & 1<<0)) Chords_Scan[0] |= 1<<2;
-		if (! (PIND & 1<<4)) Chords_Scan[0] |= 1<<4;
-		if (! (PIND & 1<<0)) Chords_Scan[0] |= 1<<6;
-		if (! (PINC & 1<<4)) Chords_Scan[1] |= 1<<0;
-		if (! (PINB & 1<<2)) Chords_Scan[1] |= 1<<2;
-		if (! (PINB & 1<<5)) Chords_Scan[1] |= 1<<4;
-		if (! (PINC & 1<<7)) Chords_Scan[1] |= 1<<6;
+		if (! (PIND & 1<<0)) Chords_Scan[1] |= 1<<0;
+		if (! (PIND & 1<<4)) Chords_Scan[1] |= 1<<1;
+		if (! (PINB & 1<<0)) Chords_Scan[1] |= 1<<2;
+		if (! (PINC & 1<<2)) Chords_Scan[1] |= 1<<3;
+		if (! (PIND & 1<<5)) Chords_Scan[1] |= 1<<4;
+
+		if (! (PINB & 1<<4)) Chords_Scan[4] |= 1<<0;
+		if (! (PINC & 1<<4)) Chords_Scan[4] |= 1<<1;
+		if (! (PINB & 1<<2)) Chords_Scan[4] |= 1<<2;
+		if (! (PINB & 1<<5)) Chords_Scan[4] |= 1<<3;
+		if (! (PINC & 1<<7)) Chords_Scan[4] |= 1<<4;
 		PORTD |= 1<<2;
 		PORTB &= ~(1<<6); // B6
 	} else if (Scan_Tick == 2) {
-		if (! (PINC & 1<<2)) Chords_Scan[0] |= 1<<1;
-		if (! (PINB & 1<<0)) Chords_Scan[0] |= 1<<3;
-		if (! (PIND & 1<<4)) Chords_Scan[0] |= 1<<5;
-		if (! (PIND & 1<<0)) Chords_Scan[0] |= 1<<7;
-		if (! (PINC & 1<<4)) Chords_Scan[1] |= 1<<1;
-		if (! (PINB & 1<<2)) Chords_Scan[1] |= 1<<3;
-		if (! (PINB & 1<<5)) Chords_Scan[1] |= 1<<5;
-		if (! (PINC & 1<<7)) Chords_Scan[1] |= 1<<7;
+		if (! (PIND & 1<<0)) Chords_Scan[2] |= 1<<0;
+		if (! (PIND & 1<<4)) Chords_Scan[2] |= 1<<1;
+		if (! (PINB & 1<<0)) Chords_Scan[2] |= 1<<2;
+		if (! (PINC & 1<<2)) Chords_Scan[2] |= 1<<3;
+		if (! (PIND & 1<<5)) Chords_Scan[2] |= 1<<4;
+
+		if (! (PINB & 1<<4)) Chords_Scan[5] |= 1<<0;
+		if (! (PINC & 1<<4)) Chords_Scan[5] |= 1<<1;
+		if (! (PINB & 1<<2)) Chords_Scan[5] |= 1<<2;
+		if (! (PINB & 1<<5)) Chords_Scan[5] |= 1<<3;
+		if (! (PINC & 1<<7)) Chords_Scan[5] |= 1<<4;
 		PORTB |= 1<<6;
-		PORTB &= ~(1<<1); // B1
-	} else if (Scan_Tick == 3) {
-		if (! (PINC & 1<<2)) Chords_Scan[0] |= 1<<9;
-		if (! (PINB & 1<<0)) Chords_Scan[0] |= 1<<8;
-		if (! (PINC & 1<<4)) Chords_Scan[1] |= 1<<9;
-		if (! (PINB & 1<<2)) Chords_Scan[1] |= 1<<8;
-		// Double thumb
-		if (! (PIND & 1<<5)) {
-			Chords_Scan[0] |= 1<<9;
-			Chords_Scan[0] |= 1<<8;
-		}
-		if (! (PINB & 1<<4)) {
-			Chords_Scan[1] |= 1<<9;
-			Chords_Scan[1] |= 1<<8;
-		}
-		if (! (PIND & 1<<4)) {
-			Chords_Scan[0] |= 1<<6;
-			Chords_Scan[0] |= 1<<7;
-		}
-		if (! (PINB & 1<<5)) {
-			Chords_Scan[1] |= 1<<6;
-			Chords_Scan[1] |= 1<<7;
-		}
-		PORTB |= 1<<1;
-		// Double fingers
 		PORTB &= ~(1<<3); // B3
-	} else if (Scan_Tick == 4) {
-		if (! (PINC & 1<<2)) {
-			Chords_Scan[0] |= 1<<0;
-			Chords_Scan[0] |= 1<<1;
-		}
-		if (! (PINB & 1<<0)) {
-			Chords_Scan[0] |= 1<<2;
-			Chords_Scan[0] |= 1<<3;
-		}
-		if (! (PIND & 1<<4)) {
-			Chords_Scan[0] |= 1<<4;
-			Chords_Scan[0] |= 1<<5;
-		}
-		if (! (PINC & 1<<4)) {
-			Chords_Scan[1] |= 1<<0;
-			Chords_Scan[1] |= 1<<1;
-		}
-		if (! (PINB & 1<<2)) {
-			Chords_Scan[1] |= 1<<2;
-			Chords_Scan[1] |= 1<<3;
-		}
-		if (! (PINB & 1<<5)) {
-			Chords_Scan[1] |= 1<<4;
-			Chords_Scan[1] |= 1<<5;
-		}
+	} else if (Scan_Tick == 3) {
+		if (! (PIND & 1<<4)) Chords_Scan[3] |= 1<<1;
+		if (! (PINB & 1<<0)) Chords_Scan[3] |= 1<<2;
+		if (! (PINC & 1<<2)) Chords_Scan[3] |= 1<<3;
+		if (! (PIND & 1<<5)) Chords_Scan[3] |= 1<<4;
+
+		if (! (PINB & 1<<4)) Chords_Scan[6] |= 1<<0;
+		if (! (PINC & 1<<4)) Chords_Scan[6] |= 1<<1;
+		if (! (PINB & 1<<2)) Chords_Scan[6] |= 1<<2;
+		if (! (PINB & 1<<5)) Chords_Scan[6] |= 1<<3;
+
 		PORTB |= 1<<3;
+		PORTB &= ~(1<<1); // B1
+	} else if (Scan_Tick == 4) {
+		if (! (PINB & 1<<0)) Chords_Scan[0] |= 1<<0;
+		if (! (PINC & 1<<2)) Chords_Scan[0] |= 1<<1;
+		if (! (PIND & 1<<5)) Chords_Scan[0] |= 1<<2;
+
+		if (! (PINB & 1<<4)) Chords_Scan[0] |= 1<<3;
+		if (! (PINC & 1<<4)) Chords_Scan[0] |= 1<<4;
+		if (! (PINB & 1<<2)) Chords_Scan[0] |= 1<<5;
+
+		if (! (PIND & 1<<4)) Chords_Scan[3] |= 1<<0;
+		if (! (PINB & 1<<5)) Chords_Scan[6] |= 1<<4;
+
+		PORTB |= 1<<1;
 		Chords[0] = Chords_Scan[0];
 		Chords[1] = Chords_Scan[1];
+		Chords[2] = Chords_Scan[2];
+		Chords[3] = Chords_Scan[3];
+		Chords[4] = Chords_Scan[4];
+		Chords[5] = Chords_Scan[5];
+		Chords[6] = Chords_Scan[6];
 	}
 	Scan_Tick ++;
 	if (Scan_Tick > 20) { // Scan delay

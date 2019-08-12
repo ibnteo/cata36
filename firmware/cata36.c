@@ -1,7 +1,7 @@
 /*
  * Project: Chord keyboard CatBoard-A36
- * Version: 0.1
- * Date: 2019-08-09
+ * Version: 0.2 (Alpha)
+ * Date: 2019-08-12
  * Author: Vladimir Romanovich <ibnteo@gmail.com>
  * License: MIT
  * https://github.com/ibnteo/cata36
@@ -30,24 +30,31 @@ void Settings_Write(void);
 void Layout_Switch(void);
 void Hardware_Setup(void);
 
-uint16_t Chords[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+uint16_t Chords[7] = {0, 0, 0, 0, 0, 0, 0};
 // Ports_Init(), LEDs(), Keyboard_Scan()
 #include "catboard2.h"
 //#include "ergodox.h"
 //#include "jian.h"
 
 // Layers
+#define HID_KEYBOARD_LAYER_FN 0xFF
+#define HID_KEYBOARD_LAYER_FN2 0xFE
+#define HID_KEYBOARD_LAYER_1 0xFD
+#define HID_KEYBOARD_LAYER_2 0xFC
+#define HID_KEYBOARD_LAYER_MOU 0xFB
 //#include "qwerty.h"
 //#include "qwerty2.h"
 #include "jcuken2.h"
 
 #define LAYER1 0
 #define LAYER2 1
+#define LAYER_FN 2
+#define LAYER_FN2 3
 
 #define NAV_MODE 0
 #define MOU_MODE 1
 
-#define MACROS_BUFFER_SIZE 70
+#define MACROS_BUFFER_SIZE 100
 #define MACROS_BUFFER_MAX 10
 uint8_t Macros_Buffer[MACROS_BUFFER_SIZE];
 uint8_t Macros_Index = 0;
@@ -58,18 +65,18 @@ int16_t Mouse_W;
 uint8_t Mouse_Button;
 uint8_t Mouse_Button_Click;
 
-const int16_t mouMoves[16] PROGMEM = {20, 1,   5,   10,  15,  30,  40,  50,
-                                      75, 100, 200, 300, 400, 500, 750, 1000};
-const int16_t mouScrolls[16] PROGMEM = {10, 1,  2,  4,  7,  15, 20, 25,
-                                        30, 40, 50, 60, 70, 80, 90, 100};
+// const int16_t mouMoves[16] PROGMEM = {20, 1,   5,   10,  15,  30,  40,  50,
+//                                      75, 100, 200, 300, 400, 500, 750, 1000};
+// const int16_t mouScrolls[16] PROGMEM = {10, 1,  2,  4,  7,  15, 20, 25,
+//                                        30, 40, 50, 60, 70, 80, 90, 100};
 
 bool Chord_Growing = true;
 uint8_t Q_Mods = 0;
-uint8_t Q_Multiplier = 0;
+// uint8_t Q_Multiplier = 0;
 uint8_t Q_Nav = NAV_MODE;
-uint8_t Layer_Current = LAYER1;
+uint8_t Layer_Current = LAYER2;
 
-uint16_t Chords_Last[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+// uint16_t Chords_Last[7] = {0, 0, 0, 0, 0, 0, 0};
 
 // EEPROM Settings
 #define LAYOUTS_TWO 0
@@ -87,6 +94,8 @@ uint8_t OS_Mode = OS_LINUX;
 uint8_t EE_OS_Mode EEMEM;
 
 uint8_t Meta = HID_KEYBOARD_MODIFIER_LEFTCTRL;
+
+bool Settings = false;
 
 void Settings_Read() {
   Layout_Mode = eeprom_read_byte(&EE_Layout_Mode);
@@ -115,8 +124,38 @@ void Layout_Switch() {
   }
 }
 
-/** Buffer to hold the previously generated Keyboard HID report, for comparison
- * purposes inside the HID class driver. */
+void Get_Mods(uint8_t chord) {
+  Q_Mods = 0;
+  bool mods_dbl[6] = {false, false, false, false, false, false};
+  uint8_t keyCode = 0;
+  for (int8_t i = 0; i < 12; i++) {
+    keyCode = 0;
+    if (((i > 0 && i < 6) &&
+         ((chord & (0x3 << (i - 1))) == (0x3 << (i - 1)))) ||
+        ((i == 0) && ((chord & 0x21) == 0x21)) ||
+        ((i >= 6) && (chord & (0x1 << (i - 6))))) {
+      keyCode = pgm_read_byte(&Layer_Mods[i]);
+    }
+    if (keyCode) {
+      if (i == 0) {
+        mods_dbl[0] = true;
+        mods_dbl[5] = true;
+      } else if (i < 6) {
+        mods_dbl[i - 1] = true;
+        mods_dbl[i] = true;
+      }
+      if ((i < 6) || ((i >= 6) && !mods_dbl[i - 6])) {
+        if (keyCode >= HID_KEYBOARD_SC_LEFT_CONTROL &&
+            keyCode <= HID_KEYBOARD_SC_RIGHT_GUI) {
+          Q_Mods ^= 1 << (keyCode - HID_KEYBOARD_SC_LEFT_CONTROL);
+        }
+      }
+    }
+  }
+}
+
+/** Buffer to hold the previously generated Keyboard HID report, for
+ * comparison purposes inside the HID class driver. */
 static uint8_t PrevKeyboardHIDReportBuffer[sizeof(USB_KeyboardReport_Data_t)];
 
 /** Buffer to hold the previously generated Mouse HID report, for comparison
@@ -220,13 +259,13 @@ void EVENT_USB_Device_StartOfFrame(void) {
  * host.
  *
  *  \param[in]     HIDInterfaceInfo  Pointer to the HID class interface
- * configuration structure being referenced \param[in,out] ReportID    Report ID
- * requested by the host if non-zero, otherwise callback should set to the
- * generated report ID \param[in]     ReportType  Type of the report to create,
- * either HID_REPORT_ITEM_In or HID_REPORT_ITEM_Feature \param[out] ReportData
- * Pointer to a buffer where the created report should be stored \param[out]
- * ReportSize  Number of bytes written in the report (or zero if no report is to
- * be sent)
+ * configuration structure being referenced \param[in,out] ReportID    Report
+ * ID requested by the host if non-zero, otherwise callback should set to the
+ * generated report ID \param[in]     ReportType  Type of the report to
+ * create, either HID_REPORT_ITEM_In or HID_REPORT_ITEM_Feature \param[out]
+ * ReportData Pointer to a buffer where the created report should be stored
+ * \param[out] ReportSize  Number of bytes written in the report (or zero if
+ * no report is to be sent)
  *
  *  \return Boolean true to force the sending of the report, false to let the
  * library determine if it needs to be sent
@@ -236,34 +275,162 @@ bool CALLBACK_HID_Device_CreateHIDReport(
     const uint8_t ReportType, void *ReportData, uint16_t *const ReportSize) {
   if (Macros_Index < (MACROS_BUFFER_SIZE - MACROS_BUFFER_MAX)) {
 
-    uint16_t chords[8] = {Chords[0], Chords[1], Chords[2], Chords[3],
-                          Chords[4], Chords[5], Chords[6], Chords[7]};
+    uint16_t chords[7] = {Chords[0], Chords[1], Chords[2], Chords[3],
+                          Chords[4], Chords[5], Chords[6]};
     Keyboard_Scan();
 
-    bool isRelease = Chords[0] < chords[0] || Chords[1] < chords[1] ||
-                     Chords[2] < chords[2] || Chords[3] < chords[3] ||
-                     Chords[4] < chords[4] || Chords[5] < chords[5] ||
-                     Chords[6] < chords[6] || Chords[7] < chords[7];
     bool isPress = Chords[0] > chords[0] || Chords[1] > chords[1] ||
                    Chords[2] > chords[2] || Chords[3] > chords[3] ||
                    Chords[4] > chords[4] || Chords[5] > chords[5] ||
-                   Chords[6] > chords[6] || Chords[7] > chords[7];
+                   Chords[6] > chords[6];
+    bool isRelease = (Chords[0] < chords[0] || Chords[1] < chords[1] ||
+                      Chords[2] < chords[2] || Chords[3] < chords[3] ||
+                      Chords[4] < chords[4] || Chords[5] < chords[5] ||
+                      Chords[6] < chords[6]);
+
+    // LED_Switch(Chords[0] || Chords[1] || Chords[2] || Chords[3] ||
+    // Chords[4]
+    // || Chords[5] || Chords[6]); return;
+
+    LED_Switch(Q_Mods);
 
     if (isPress) {
       Chord_Growing = true;
+      Get_Mods(Chords[0]);
     } else if (isRelease) {
+      Get_Mods(Chords[0]);
       if (Chord_Growing) {
+        uint8_t multiplier = 0;
 
-        uint8_t layer = Layer_Current;
-        if (isRelease) {
-          Chords_Last[0] = chords[0];
-          Chords_Last[1] = chords[1];
+        uint8_t layer = (Q_Mods & ~(HID_KEYBOARD_MODIFIER_LEFTSHIFT |
+                                    HID_KEYBOARD_MODIFIER_RIGHTSHIFT))
+                            ? LAYER1
+                            : Layer_Current;
+
+        if (Settings) { // Settings
+          Settings = false;
+          if (chords[4] & 0x3) {
+            Layout_Mode = (chords[4] & 0x3) - 1;
+          }
+          if (chords[5] & 0x3) {
+            OS_Mode = (chords[5] & 0x3) - 1;
+            Meta = (OS_Mode == OS_MAC) ? HID_KEYBOARD_MODIFIER_LEFTGUI
+                                       : HID_KEYBOARD_MODIFIER_LEFTCTRL;
+          }
+          if (chords[0] & 0x20) {
+            Settings_Write();
+          }
+          LED_Toggle();
+        } else if (chords[0] == 0x10 &&
+                   ((chords[4] == 0x14 && chords[5] == 0xA) ||
+                    (chords[4] == 0xA && chords[5] == 0x14))) { // Settings Mode
+          Settings = true;
+          LED_Toggle();
+        } else {
+          // Mods
+          uint8_t keyCode = 0;
+          bool mods_dbl[6] = {false, false, false, false, false, false};
+          for (int8_t i = 0; i < 12; i++) {
+            keyCode = 0;
+            if (((i > 0 && i < 6) &&
+                 ((chords[0] & (0x3 << (i - 1))) == (0x3 << (i - 1)))) ||
+                ((i == 0) && ((chords[0] & 0x21) == 0x21)) ||
+                ((i >= 6) && ((chords[0] & (0x1 << (i - 6)))))) {
+              keyCode = pgm_read_byte(&Layer_Mods[i]);
+            }
+            if (keyCode) {
+              if (i == 0) {
+                mods_dbl[0] = true;
+                mods_dbl[5] = true;
+              } else if (i < 6) {
+                mods_dbl[i - 1] = true;
+                mods_dbl[i] = true;
+              }
+              if ((i < 6) || ((i >= 6) && !mods_dbl[i - 6])) {
+                if (keyCode >= HID_KEYBOARD_SC_LEFT_CONTROL &&
+                    keyCode <= HID_KEYBOARD_SC_RIGHT_GUI) {
+                  // nothing
+                } else if (keyCode == HID_KEYBOARD_LAYER_FN) {
+                  layer = LAYER_FN;
+                } else if (keyCode == HID_KEYBOARD_LAYER_FN2) {
+                  layer = LAYER_FN2;
+                } else {
+                  Macros_Buffer[Macros_Index++] = keyCode;
+                  Macros_Buffer[Macros_Index++] = Q_Mods;
+                }
+              }
+            }
+          }
+          // Symbols
+          for (int8_t j = 0; j < 6; j++) {
+            bool chords_dbl[5] = {false, false, false, false, false};
+            for (int8_t i = 0; i < 9; i++) {
+              keyCode = 0;
+              if (((i < 4) && ((chords[j + 1] & (0x3 << i)) == (0x3 << i))) ||
+                  ((i >= 4) && (chords[j + 1] & (0x1 << (i - 4))))) {
+                keyCode = pgm_read_byte(&Layers[layer][j][i]);
+              }
+              if (keyCode) {
+                if (i < 4) {
+                  chords_dbl[i] = true;
+                  chords_dbl[i + 1] = true;
+                }
+                if ((i < 4) || ((i >= 4) && !chords_dbl[i - 4])) {
+                  if (keyCode == HID_KEYBOARD_LAYER_1) {
+                    if (Layer_Current != LAYER1) {
+                      Layout_Switch();
+                      Layer_Current = LAYER1;
+                      LED_On();
+                    }
+                  } else if (keyCode == HID_KEYBOARD_LAYER_2) {
+                    if (Layer_Current != LAYER2) {
+                      Layout_Switch();
+                      Layer_Current = LAYER2;
+                      LED_Off();
+                    }
+                  } else if (keyCode == HID_KEYBOARD_LAYER_MOU) {
+                  } else if (keyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION &&
+                             keyCode <=
+                                 HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS &&
+                             (chords[4] || chords[5] || chords[6] ||
+                              (chords[1] & 0x11) || (chords[2] & 0x11) ||
+                              (chords[3] & 0x11))) { // Multiplier
+                    multiplier +=
+                        (keyCode - HID_KEYBOARD_SC_1_AND_EXCLAMATION) + 1;
+                  } else {
+                    Macros_Buffer[Macros_Index++] = keyCode;
+                    Macros_Buffer[Macros_Index++] = Q_Mods;
+                    // Macros_Index == 1 ? Q_Mods : 0;
+                  }
+                }
+              }
+            }
+          }
         }
+
+        if (Macros_Index == 2 && multiplier && Macros_Buffer[0]) {
+          if (multiplier == 1) {
+            Macros_Buffer[1] |= HID_KEYBOARD_MODIFIER_LEFTGUI;
+          } else {
+            for (uint8_t i = 1; i < multiplier; i++) {
+              Macros_Buffer[Macros_Index++] = Macros_Buffer[i * 2 - 2];
+              Macros_Buffer[Macros_Index++] = Macros_Buffer[i * 2 - 1];
+            }
+          }
+        }
+
+        /*Chords_Last[0] = chords[0];
+        Chords_Last[1] = chords[1];
+        Chords_Last[2] = chords[2];
+        Chords_Last[3] = chords[3];
+        Chords_Last[4] = chords[4];
+        Chords_Last[5] = chords[5];
+        Chords_Last[6] = chords[6];*/
         Chord_Growing = false;
 
-        if (Layer_Current != layer) {
-          Layout_Switch();
-        }
+        // if (Layer_Current != layer) {
+        //  Layout_Switch();
+        //}
       }
     }
   }
@@ -340,11 +507,12 @@ bool CALLBACK_HID_Device_CreateHIDReport(
  * the host.
  *
  *  \param[in] HIDInterfaceInfo  Pointer to the HID class interface
- * configuration structure being referenced \param[in] ReportID    Report ID of
- * the received report from the host \param[in] ReportType  The type of report
- * that the host has sent, either HID_REPORT_ITEM_Out or HID_REPORT_ITEM_Feature
- *  \param[in] ReportData  Pointer to a buffer where the received report has
- * been stored \param[in] ReportSize  Size in bytes of the received HID report
+ * configuration structure being referenced \param[in] ReportID    Report ID
+ * of the received report from the host \param[in] ReportType  The type of
+ * report that the host has sent, either HID_REPORT_ITEM_Out or
+ * HID_REPORT_ITEM_Feature \param[in] ReportData  Pointer to a buffer where
+ * the received report has been stored \param[in] ReportSize  Size in bytes of
+ * the received HID report
  */
 void CALLBACK_HID_Device_ProcessHIDReport(
     USB_ClassInfo_HID_Device_t *const HIDInterfaceInfo, const uint8_t ReportID,
