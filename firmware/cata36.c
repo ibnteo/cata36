@@ -403,7 +403,8 @@ bool CALLBACK_HID_Device_CreateHIDReport(
                         LED_Off();
                       }
                     } else if (keyCode == HID_KEYBOARD_LAYER_MOU) {
-                    } else if (keyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION &&
+                    } else if (!v &&
+                               keyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION &&
                                keyCode <=
                                    HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS &&
                                (chords[4] || chords[5] ||
