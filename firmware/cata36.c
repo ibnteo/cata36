@@ -54,8 +54,8 @@ uint16_t Chords[7] = {0, 0, 0, 0, 0, 0, 0};
 #define NAV_MODE 0
 #define MOU_MODE 1
 
-#define MACROS_BUFFER_SIZE 100
-#define MACROS_BUFFER_MAX 10
+#define MACROS_BUFFER_SIZE 200
+#define MACROS_BUFFER_MAX 100
 uint8_t Macros_Buffer[MACROS_BUFFER_SIZE];
 uint8_t Macros_Index = 0;
 
@@ -403,10 +403,11 @@ bool CALLBACK_HID_Device_CreateHIDReport(
                         LED_Off();
                       }
                     } else if (keyCode == HID_KEYBOARD_LAYER_MOU) {
+                      // TODO: mouse
                     } else if (!v &&
                                keyCode >= HID_KEYBOARD_SC_1_AND_EXCLAMATION &&
                                keyCode <=
-                                   HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS &&
+                                   HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS &&
                                (chords[4] || chords[5] ||
                                 chords[6])) { // Multiplier
                       multiplier +=
