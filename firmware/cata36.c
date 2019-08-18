@@ -1,7 +1,7 @@
 /*
  * Project: Chord keyboard CatBoard-A36
- * Version: 0.4 (Beta)
- * Date: 2019-08-13
+ * Version: 0.42 (Beta)
+ * Date: 2019-08-18
  * Author: Vladimir Romanovich <ibnteo@gmail.com>
  * License: MIT
  * https://github.com/ibnteo/cata36
@@ -412,6 +412,25 @@ bool CALLBACK_HID_Device_CreateHIDReport(
                                 (chords[6] & ~0x1))) { // Multiplier
                       multiplier +=
                           (keyCode - HID_KEYBOARD_SC_1_AND_EXCLAMATION) + 1;
+                    } else if (!v && (keyCode == HID_KEYBOARD_SC_HOME ||
+                                keyCode == HID_KEYBOARD_SC_END) &&
+                               (Q_Mods & (HID_KEYBOARD_MODIFIER_LEFTCTRL |
+                                          HID_KEYBOARD_MODIFIER_RIGHTCTRL))) {
+                      if (multiplier > 1) {
+                        multiplier = 0;
+                        Macros_Buffer[Macros_Index] = keyCode;
+                        Macros_Index++;
+                        Macros_Buffer[Macros_Index] = Q_Mods;
+                        Macros_Index++;
+                      } else {
+                        Macros_Buffer[Macros_Index] = keyCode;
+                        Macros_Index++;
+                        Macros_Buffer[Macros_Index] =
+                            Macros_Index == Q_Mods &
+                            ~(HID_KEYBOARD_MODIFIER_LEFTCTRL |
+                              HID_KEYBOARD_MODIFIER_RIGHTCTRL);
+                        Macros_Index++;
+                      }
                     } else if ((!v && !IsVowels(keyCode)) ||
                                (v && IsVowels(keyCode))) {
                       Macros_Buffer[Macros_Index] = keyCode;

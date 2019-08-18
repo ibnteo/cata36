@@ -52,15 +52,15 @@ const uint8_t Layers[4][6][9] PROGMEM = {
          HID_KEYBOARD_SC_G,   // G
      },
      {
-         HID_KEYBOARD_LAYER_1, // ZX
-         0,                    // XC
-         0,                    // CV
-         0,                    // VB
-         HID_KEYBOARD_SC_Z,    // Z
-         HID_KEYBOARD_SC_X,    // X
-         HID_KEYBOARD_SC_C,    // C
-         HID_KEYBOARD_SC_V,    // V
-         HID_KEYBOARD_SC_B,    // B
+         0,                 // ZX
+         0,                 // XC
+         0,                 // CV
+         0,                 // VB
+         HID_KEYBOARD_SC_Z, // Z
+         HID_KEYBOARD_SC_X, // X
+         HID_KEYBOARD_SC_C, // C
+         HID_KEYBOARD_SC_V, // V
+         HID_KEYBOARD_SC_B, // B
      },
      {
          0,                                                 // YU
@@ -76,8 +76,8 @@ const uint8_t Layers[4][6][9] PROGMEM = {
      {
          0,                                    // HJ
          0,                                    // JK
-         0, // KL
-         HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE,   // L;
+         0,                                    // KL
+         HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE, // L;
          HID_KEYBOARD_SC_H,                    // H
          HID_KEYBOARD_SC_J,                    // J
          HID_KEYBOARD_SC_K,                    // K
@@ -88,7 +88,7 @@ const uint8_t Layers[4][6][9] PROGMEM = {
          0,                                         // NM
          0,                                         // M,
          0,                                         // ,.
-         HID_KEYBOARD_LAYER_2,                      // ./
+         0,                                         // ./
          HID_KEYBOARD_SC_N,                         // N
          HID_KEYBOARD_SC_M,                         // M
          HID_KEYBOARD_SC_COMMA_AND_LESS_THAN_SIGN,  // ,<
@@ -119,7 +119,7 @@ const uint8_t Layers[4][6][9] PROGMEM = {
          HID_KEYBOARD_SC_P,   // P
      },
      {
-         HID_KEYBOARD_LAYER_1,                    // Q/
+         0,                                       // Q/
          0,                                       // /S
          0,                                       // SM
          0,                                       // MI
@@ -143,8 +143,8 @@ const uint8_t Layers[4][6][9] PROGMEM = {
      {
          0,                                    // RO
          0,                                    // OL
-         0, // LD
-         HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE,   // D;
+         0,                                    // LD
+         HID_KEYBOARD_SC_APOSTROPHE_AND_QUOTE, // D;
          HID_KEYBOARD_SC_R,                    // R
          HID_KEYBOARD_SC_O,                    // O
          HID_KEYBOARD_SC_L,                    // L
@@ -155,7 +155,7 @@ const uint8_t Layers[4][6][9] PROGMEM = {
          0,                                         // TX
          0,                                         // XB
          0,                                         // B,
-         HID_KEYBOARD_LAYER_2,                      // ,.
+         0,                                         // ,.
          HID_KEYBOARD_SC_T,                         // T
          HID_KEYBOARD_SC_X,                         // X
          HID_KEYBOARD_SC_B,                         // B
@@ -164,44 +164,44 @@ const uint8_t Layers[4][6][9] PROGMEM = {
      }},
     {// Navigation and Numbers
      {
-         0,                                    // QW
-         0,                                    // WE
-         0,                                    // ER
-         0,                                    // RT
-         HID_KEYBOARD_SC_1_AND_EXCLAMATION,               // Q
-         HID_KEYBOARD_SC_2_AND_AT,    // W
-         HID_KEYBOARD_SC_3_AND_HASHMARK,             // E
-         HID_KEYBOARD_SC_4_AND_DOLLAR,       // R
-         HID_KEYBOARD_SC_5_AND_PERCENTAGE, // T
+         0,                                 // QW
+         0,                                 // WE
+         0,                                 // ER
+         0,                                 // RT
+         HID_KEYBOARD_SC_1_AND_EXCLAMATION, // Q
+         HID_KEYBOARD_SC_2_AND_AT,          // W
+         HID_KEYBOARD_SC_3_AND_HASHMARK,    // E
+         HID_KEYBOARD_SC_4_AND_DOLLAR,      // R
+         HID_KEYBOARD_SC_5_AND_PERCENTAGE,  // T
      },
      {
-         0,                                       // AS
-         0,                                       // SD
-         0,                                       // DF
-         0,                                       // FG
-         HID_KEYBOARD_SC_6_AND_CARET, // A
-         HID_KEYBOARD_SC_7_AND_AND_AMPERSAND,            // S
-         HID_KEYBOARD_SC_8_AND_ASTERISK,        // D
-         HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS,             // F
-         HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS,          // G
+         0,                                         // AS
+         0,                                         // SD
+         0,                                         // DF
+         0,                                         // FG
+         HID_KEYBOARD_SC_6_AND_CARET,               // A
+         HID_KEYBOARD_SC_7_AND_AND_AMPERSAND,       // S
+         HID_KEYBOARD_SC_8_AND_ASTERISK,            // D
+         HID_KEYBOARD_SC_9_AND_OPENING_PARENTHESIS, // F
+         HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS, // G
      },
      {
-         0,                                         // ZX
+         HID_KEYBOARD_LAYER_1,                      // ZX
          0,                                         // XC
          0,                                         // CV
          0,                                         // VB
-         HID_KEYBOARD_SC_BACKSLASH_AND_PIPE, // Z
-         HID_KEYBOARD_SC_SLASH_AND_QUESTION_MARK,       // X
+         HID_KEYBOARD_SC_BACKSLASH_AND_PIPE,        // Z
+         HID_KEYBOARD_SC_SLASH_AND_QUESTION_MARK,   // X
          HID_KEYBOARD_SC_EQUAL_AND_PLUS,            // C
-         HID_KEYBOARD_SC_MINUS_AND_UNDERSCORE, // V
+         HID_KEYBOARD_SC_MINUS_AND_UNDERSCORE,      // V
          HID_KEYBOARD_SC_DOT_AND_GREATER_THAN_SIGN, // B
      },
      {
          0,                         // YU
          0,                         // UI
-         HID_KEYBOARD_SC_INSERT,                         // IO
+         HID_KEYBOARD_SC_INSERT,    // IO
          0,                         // OP
-         HID_KEYBOARD_SC_PAGE_UP,    // Y
+         HID_KEYBOARD_SC_PAGE_UP,   // Y
          HID_KEYBOARD_LAYER_MOU,    // U
          HID_KEYBOARD_SC_UP_ARROW,  // I
          HID_KEYBOARD_SC_DELETE,    // O
@@ -212,63 +212,63 @@ const uint8_t Layers[4][6][9] PROGMEM = {
          0,                           // JK
          0,                           // KL
          0,                           // L;
-         HID_KEYBOARD_SC_PAGE_DOWN,     // H
+         HID_KEYBOARD_SC_PAGE_DOWN,   // H
          HID_KEYBOARD_SC_LEFT_ARROW,  // J
          HID_KEYBOARD_SC_DOWN_ARROW,  // K
          HID_KEYBOARD_SC_RIGHT_ARROW, // L
          HID_KEYBOARD_SC_ENTER,       // ;
      },
      {
-         0,                         // NM
-         0,                         // M,
-         0,                         // ,.
-         0,                         // ./
-         HID_KEYBOARD_SC_SPACE, // N
-         HID_KEYBOARD_SC_HOME,      // M
-         HID_KEYBOARD_SC_TAB,       // ,<
-         HID_KEYBOARD_SC_END,       // .>
-         HID_KEYBOARD_SC_ESCAPE,    // /?
+         0,                      // NM
+         0,                      // M,
+         0,                      // ,.
+         HID_KEYBOARD_LAYER_2,   // ./
+         HID_KEYBOARD_SC_SPACE,  // N
+         HID_KEYBOARD_SC_HOME,   // M
+         HID_KEYBOARD_SC_TAB,    // ,<
+         HID_KEYBOARD_SC_END,    // .>
+         HID_KEYBOARD_SC_ESCAPE, // /?
      }},
     {// Function and Number block
      {
-         0,    // QW
-         0,                        // WE
-         0,                        // ER
-         0,                        // RT
-         HID_KEYBOARD_SC_F1, // Q
-         HID_KEYBOARD_SC_F2,       // W
-         HID_KEYBOARD_SC_F3,       // E
-         HID_KEYBOARD_SC_F4,       // R
-         HID_KEYBOARD_SC_PRINT_SCREEN,      // T
+         0,                            // QW
+         0,                            // WE
+         0,                            // ER
+         0,                            // RT
+         HID_KEYBOARD_SC_F1,           // Q
+         HID_KEYBOARD_SC_F2,           // W
+         HID_KEYBOARD_SC_F3,           // E
+         HID_KEYBOARD_SC_F4,           // R
+         HID_KEYBOARD_SC_PRINT_SCREEN, // T
      },
      {
-         HID_KEYBOARD_SC_CAPS_LOCK, // AS
-         0,                            // SD
-         0,                            // DF
-         0,                            // FG
-         HID_KEYBOARD_SC_F5,    // A
-         HID_KEYBOARD_SC_F6,           // S
-         HID_KEYBOARD_SC_F7,           // D
-         HID_KEYBOARD_SC_F8,           // F
-         HID_KEYBOARD_SC_SCROLL_LOCK,          // G
+         HID_KEYBOARD_SC_CAPS_LOCK,   // AS
+         0,                           // SD
+         0,                           // DF
+         0,                           // FG
+         HID_KEYBOARD_SC_F5,          // A
+         HID_KEYBOARD_SC_F6,          // S
+         HID_KEYBOARD_SC_F7,          // D
+         HID_KEYBOARD_SC_F8,          // F
+         HID_KEYBOARD_SC_SCROLL_LOCK, // G
      },
      {
-         0,                           // ZX
-         0,                           // XC
-         0,                           // CV
-         0,                           // VB
-         HID_KEYBOARD_SC_F9, // Z
-         HID_KEYBOARD_SC_F10,          // X
-         HID_KEYBOARD_SC_F11,          // C
-         HID_KEYBOARD_SC_F12,          // V
-         HID_KEYBOARD_SC_PAUSE,         // B
+         0,                     // ZX
+         0,                     // XC
+         0,                     // CV
+         0,                     // VB
+         HID_KEYBOARD_SC_F9,    // Z
+         HID_KEYBOARD_SC_F10,   // X
+         HID_KEYBOARD_SC_F11,   // C
+         HID_KEYBOARD_SC_F12,   // V
+         HID_KEYBOARD_SC_PAUSE, // B
      },
      {
-         HID_KEYBOARD_SC_NUM_LOCK,                                     // YU
+         HID_KEYBOARD_SC_NUM_LOCK,              // YU
          0,                                     // UI
          0,                                     // IO
          0,                                     // OP
-         HID_KEYBOARD_SC_KEYPAD_SLASH,       // Y
+         HID_KEYBOARD_SC_KEYPAD_SLASH,          // Y
          HID_KEYBOARD_SC_KEYPAD_7_AND_HOME,     // U
          HID_KEYBOARD_SC_KEYPAD_8_AND_UP_ARROW, // I
          HID_KEYBOARD_SC_KEYPAD_9_AND_PAGE_UP,  // O
@@ -279,7 +279,7 @@ const uint8_t Layers[4][6][9] PROGMEM = {
          0,                                        // JK
          0,                                        // KL
          0,                                        // L;
-         HID_KEYBOARD_SC_KEYPAD_ASTERISK,             // H
+         HID_KEYBOARD_SC_KEYPAD_ASTERISK,          // H
          HID_KEYBOARD_SC_KEYPAD_4_AND_LEFT_ARROW,  // J
          HID_KEYBOARD_SC_KEYPAD_5,                 // K
          HID_KEYBOARD_SC_KEYPAD_6_AND_RIGHT_ARROW, // L
