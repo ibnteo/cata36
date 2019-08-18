@@ -409,7 +409,7 @@ bool CALLBACK_HID_Device_CreateHIDReport(
                                keyCode <=
                                    HID_KEYBOARD_SC_0_AND_CLOSING_PARENTHESIS &&
                                (chords[4] || chords[5] ||
-                                chords[6])) { // Multiplier
+                                (chords[6] & ~0x1))) { // Multiplier
                       multiplier +=
                           (keyCode - HID_KEYBOARD_SC_1_AND_EXCLAMATION) + 1;
                     } else if ((!v && !IsVowels(keyCode)) ||

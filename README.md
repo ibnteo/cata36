@@ -16,6 +16,10 @@
 
 Раскладка в [Keyboard Layout Editor](http://www.keyboard-layout-editor.com/#/gists/d8e9c413d44c5048d341a1889e236c99)
 
+![CatBoard-A36 Layer1](layout/catboard-a36-lay1.png)
+![CatBoard-A36 Fn](layout/catboard-a36-fn.png)
+![CatBoard-A36 Fn2](layout/catboard-a36-fn2.png)
+
 ## Сборка и загрузка прошивки
 
 Собрать проект можно командой:
