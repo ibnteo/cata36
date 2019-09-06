@@ -32,7 +32,8 @@ void Hardware_Setup(void);
 
 uint16_t Chords[7] = {0, 0, 0, 0, 0, 0, 0};
 // Ports_Init(), LEDs(), Keyboard_Scan()
-#include "catboard2.h"
+//#include "catboard2.h"
+#include "codenets.h"
 //#include "ergodox.h"
 //#include "jian.h"
 
@@ -77,6 +78,7 @@ uint8_t Q_Nav = NAV_MODE;
 uint8_t Layer_Current = LAYER2;
 
 // uint16_t Chords_Last[7] = {0, 0, 0, 0, 0, 0, 0};
+uint8_t Macros_Press[36];
 
 // EEPROM Settings
 #define LAYOUTS_TWO 0
@@ -479,6 +481,30 @@ bool CALLBACK_HID_Device_CreateHIDReport(
     }
     if (isPress) {
       Chord_Growing = true;
+      // Quasichords
+      /*for (uint8_t i == 1; i <= 6; i ++) {
+        if (Chord[i] > chord[i]) {
+          uint8_t keyPress = Chord[i] - chord[i];
+          uint8_t keyCode = 0;
+          for (int8_t j = 0; j < 6; j++) {
+            bool chords_dbl[5] = {false, false, false, false, false};
+            for (int8_t i = 0; i < 9; i++) {
+              keyCode = 0;
+              if (((i < 4) && ((Chord[j + 1] & (0x3 << i)) == (0x3 << i))) ||
+                  ((i >= 4) && (keyPress & (0x1 << (i - 4))))) {
+                keyCode = pgm_read_byte(&Layers[layer][j][i]);
+              }
+              if (keyCode) {
+                if (i < 4) {
+                  chords_dbl[i] = true;
+                  chords_dbl[i + 1] = true;
+                }
+
+              }
+            }
+          }
+        }
+      }*/
     }
     Get_Mods(chords[0]);
   }
